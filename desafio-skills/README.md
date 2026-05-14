@@ -16,6 +16,7 @@ Para cada projeto foram identificados **pelo menos cinco** problemas, com **pelo
 | 4 | **MEDIUM** | **Acoplamento e “God module”**: `models.py` concentra persistência, regras e montagem de resposta; validação de negócio repetida em `controllers.py` | `models.py`, `controllers.py` | Dificulta testes unitários e evolução por domínio. |
 | 5 | **MEDIUM** | **Lista de usuários retorna `senha` em claro** para clientes da API | `models.py` `get_todos_usuarios` / serialização | Violação de privacidade e incentiva abuso se vazamento de logs. |
 | 6 | **LOW** | **Mensagens de negócio simuladas** (`print` de e-mail/SMS) misturadas ao fluxo HTTP | `controllers.py` 207–210 | Ruído operacional; ideal extrair para serviço de notificação ou fila. |
+| 7 | **LOW** | **Magic numbers** soltos (ex.: limites e thresholds sem constante nomeada) | `models.py`, `controllers.py` (múltiplas ocorrências) | Dificulta leitura e evolução; qualquer alteração exige caça ao número. |
 
 ### `ecommerce-api-legacy` (Node.js / Express — LMS + checkout)
 
@@ -27,6 +28,7 @@ Para cada projeto foram identificados **pelo menos cinco** problemas, com **pelo
 | 4 | **MEDIUM** | **Callback hell / fluxo assíncrono aninhado** no checkout e no relatório financeiro | `AppManager.js` 37–77, 80–128 | Bugs de concorrência e manutenção; erros difíceis de raciocinar. |
 | 5 | **MEDIUM** | **Padrão N+1** no relatório (`forEach` de cursos → queries por matrícula/usuário/pagamento) | `AppManager.js` 89–126 | Degrada com volume; sintoma de ausência de camada de acesso a dados. |
 | 6 | **LOW** | **Variáveis de uma letra** (`u`, `e`, `p`, `cid`, `cc`) em API pública | `AppManager.js` 28–33 | Legibilidade e revisão de segurança piores. |
+| 7 | **LOW** | **Ausência de middleware de validação de entrada** nas rotas — parâmetros não checados antes do processamento | `AppManager.js` (rotas em geral) | Mensagens de erro inconsistentes; facilita inputs mal-formados chegarem ao banco. |
 
 ### `task-manager-api` (Python / Flask + SQLAlchemy — Task Manager)
 
@@ -38,6 +40,7 @@ Para cada projeto foram identificados **pelo menos cinco** problemas, com **pelo
 | 4 | **MEDIUM** | **N+1 queries** ao montar lista de tasks (busca `User` e `Category` por item) | `routes/task_routes.py` 11–57 | Latência cresce linearmente com número de tasks. |
 | 5 | **MEDIUM** | **Lógica de apresentação e regras** (overdue, montagem de dict) na camada de rotas | `routes/task_routes.py`, `routes/user_routes.py` | Dificulta reuso e testes; mistura responsabilidades de controller/view. |
 | 6 | **LOW** | **`except:` sem tipo** e retorno genérico de erro | `task_routes.py` 62–63, 236–237 | Esconde falhas reais e dificulta observabilidade. |
+| 7 | **LOW** | **Token JWT falso** retornado no login — campo `token` contém string simulada, não é um JWT real | `routes/user_routes.py` (resposta do login) | Clientes dependem da resposta; retornar dado falso como se fosse real é enganoso e inutilizável em integração. |
 
 ---
 
